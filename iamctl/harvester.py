@@ -322,18 +322,17 @@ class Harvester:
         self.close_file_handler()
         bar.finish()
 
-    def __init__(self, cli_profile_name, account_tag, output_directory):
+    def __init__(self, account_tag, output_directory):
         # create self.logger, TBD change this to get logging conf based on class name
         self.logger = logging.getLogger(__name__)
         self.iam_reference = self.read_iam_file()
-        self.cli_profile_name = cli_profile_name
         self.account_tag = account_tag
         self.output_directory = output_directory
         # Any clients created from this session will use credentials
         # from the [dev] section of ~/.aws/credentials.
-        self.client = boto3.Session(profile_name=cli_profile_name).client('iam')
+        self.client = boto3.client('iam', credentials=boto3.Session().get_credentials())
 
-        self.filename = self.output_directory + '/' + account_tag + '_' + cli_profile_name + '_iam_tuples.csv'
+        self.filename = self.output_directory + '/' + account_tag + '_iam_tuples.csv'
         self.extract_file = open(self.filename, "w", newline = '')
         self.csv_out = csv.writer(self.extract_file)
         self.csv_out.writerow(('rolename', 'path', 'policyname', 'policytype', 'effect', 'service', 'action', 'arn', 'principal'))

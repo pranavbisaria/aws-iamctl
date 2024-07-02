@@ -47,12 +47,12 @@ def fix_me_a_directory(output):
 def check_if_init():
     return os.path.isfile('iam.json') and os.path.isfile('equivalency_list.json')
 
-def harvest(profile_name,account_name,output):
+def harvest(account_name,output):
     if not check_if_init():
         print(Fore.YELLOW + 'Please initialize using "iamctl init"')
     else:
         output_directory = fix_me_a_directory(output)
-        harvest = Harvester(profile_name, account_name, output_directory)
+        harvest = Harvester(account_name, output_directory)
         #This will harvest all the iam roles from account-1 and write it to an extract file under output/ directory
         harvest.harvest_iam_roles_from_account()
 
@@ -62,8 +62,8 @@ def diff(profile_name_1, account_name_1, profile_name_2, account_name_2, output)
         print(Fore.YELLOW + 'Please initialize using "iamctl init"')
     else:
         output_directory = fix_me_a_directory(output)
-        harvest1 = Harvester(profile_name_1, account_name_1, output_directory)
-        harvest2 = Harvester(profile_name_2, account_name_2, output_directory)
+        harvest1 = Harvester(profile_name_1, output_directory)
+        harvest2 = Harvester(profile_name_2, output_directory)
 
         #This will harvest all the iam roles from account-1 and write it to an extract file under output/ directory
         harvest1.harvest_iam_roles_from_account()
