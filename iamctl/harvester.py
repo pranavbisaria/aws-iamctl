@@ -335,7 +335,7 @@ class Harvester:
         output_directory = "-"
         return cls(None, client, None)
 
-    def fix_me_a_directory(output):
+    def fix_me_a_directory(self, output):
         if output is None:
             output_directory = expanduser("~") + '/aws-idt/output' + time.strftime("/%Y/%m/%d/%H/%M/%S")
             if not os.path.exists(output_directory):
