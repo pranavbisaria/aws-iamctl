@@ -330,7 +330,8 @@ class Harvester:
 
     @classmethod
     def init_without_profile(cls):
-        client = boto3.client('iam', credentials=boto3.Session().get_credentials())
+        session = boto3.Session()
+        client = session.client('iam')
         output_directory = "-"
         return cls(None, client, filename)
 
