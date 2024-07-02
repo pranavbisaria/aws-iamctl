@@ -333,7 +333,7 @@ class Harvester:
         session = boto3.Session()
         client = session.client('iam')
         output_directory = "-"
-        return cls(None, client, filename)
+        return cls(None, client, None)
 
     def fix_me_a_directory(output):
         if output is None:
