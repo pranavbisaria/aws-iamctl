@@ -314,45 +314,36 @@ class Harvester:
         roles=self.get_iam_roles()
         self.logger.info("Number of roles: %d", len(roles))
         #bar = ProgressBar('Something')
-        bar = ChargingBar('Harvesting IAM Roles your sccount', max=len(roles),suffix='%(index)d/%(max)d - %(eta)ds')
+        bar = ChargingBar('Harvesting IAM Roles from '+self.account_tag, max=len(roles),suffix='%(index)d/%(max)d - %(eta)ds')
         for role in roles:
             parsed_policies = self.process_role(role)        
             self.write_out_exhaust({'name': role['RoleName'],'path':role['Path'],'policies':parsed_policies})
             bar.next()
         self.close_file_handler()
         bar.finish()
-
+        
     @classmethod
-    def init_with_profile(cli_profile_name, account_tag, output_directory):
+    def init_with_profile(cls, cli_profile_name, account_tag, output_directory):
         client = boto3.Session(profile_name=cli_profile_name).client('iam')
         filename = output_directory + '/' + account_tag + '_' + cli_profile_name + '_iam_tuples.csv'
-        return cls(output_directory, client, filename)
+        return cls(output_directory, client, cli_profile_name, account_tag)
 
     @classmethod
-    def init_without_profile(cls):
+    def init_without_profile(cls, output_directory):
         session = boto3.Session()
         client = session.client('iam')
-        output_directory = "-"
-        return cls(None, client, None)
+        account_id = session.client('sts').get_caller_identity().get('Account')
+        return cls(output_directory, client, "dev_ops", account_id)
 
-    def fix_me_a_directory(self, output):
-        if output is None:
-            output_directory = expanduser("~") + '/aws-idt/output' + time.strftime("/%Y/%m/%d/%H/%M/%S")
-            if not os.path.exists(output_directory):
-                os.makedirs(output_directory)
-            return output_directory
-        else:
-            return output
-
-    def __init__(self, output_directory, client, filename):
+    def __init__(self, output_directory, client, cli_profile_name, account_tag):
         # create self.logger, TBD change this to get logging conf based on class name
-        output_directory = self.fix_me_a_directory(None)
-        filename = output_directory + '/' + 'iam_tuples.csv'
         self.logger = logging.getLogger(__name__)
         self.iam_reference = self.read_iam_file()
         self.output_directory = output_directory
         self.client = client
-        self.filename = filename
+        self.cli_profile_name = cli_profile_name
+        self.account_tag = account_tag
+        self.filename = self.output_directory + '/' + account_tag + '_' + self.cli_profile_name + '_iam_tuples.csv'
         self.extract_file = open(self.filename, "w", newline = '')
         self.csv_out = csv.writer(self.extract_file)
         self.csv_out.writerow(('rolename', 'path', 'policyname', 'policytype', 'effect', 'service', 'action', 'arn', 'principal'))
