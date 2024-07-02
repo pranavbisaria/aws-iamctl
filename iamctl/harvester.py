@@ -329,13 +329,24 @@ class Harvester:
         return cls(output_directory, client, filename)
 
     @classmethod
-    def init_without_profile(output_directory):
+    def init_without_profile(cls):
         client = boto3.client('iam', credentials=boto3.Session().get_credentials())
-        filename = output_directory + '/' + 'iam_tuples.csv'
-        return cls(output_directory, client, filename)
+        output_directory = "-"
+        return cls(None, client, filename)
+
+    def fix_me_a_directory(output):
+        if output is None:
+            output_directory = expanduser("~") + '/aws-idt/output' + time.strftime("/%Y/%m/%d/%H/%M/%S")
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory)
+            return output_directory
+        else:
+            return output
 
     def __init__(self, output_directory, client, filename):
         # create self.logger, TBD change this to get logging conf based on class name
+        output_directory = self.fix_me_a_directory(None)
+        filename = output_directory + '/' + 'iam_tuples.csv'
         self.logger = logging.getLogger(__name__)
         self.iam_reference = self.read_iam_file()
         self.output_directory = output_directory

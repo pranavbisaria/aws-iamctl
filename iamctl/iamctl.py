@@ -49,8 +49,8 @@ def harvest(output):
     if not check_if_init():
         print(Fore.YELLOW + 'Please initialize using "iamctl init"')
     else:
-        output_directory = fix_me_a_directory(output)
-        harvest = Harvester.init_without_profile(output_directory)
+        # output_directory = fix_me_a_directory(output)
+        harvest = Harvester.init_without_profile()
         #This will harvest all the iam roles from account-1 and write it to an extract file under output/ directory
         harvest.harvest_iam_roles_from_account()
 
