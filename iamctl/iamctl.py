@@ -33,8 +33,6 @@ from iamctl.harvester import Harvester
 from iamctl.differ import Differ
 from pkg_resources import get_distribution, DistributionNotFound
 
-
-
 def fix_me_a_directory(output):
     if output is None:
         output_directory = expanduser("~") + '/aws-idt/output' + time.strftime("/%Y/%m/%d/%H/%M/%S")
@@ -47,12 +45,12 @@ def fix_me_a_directory(output):
 def check_if_init():
     return os.path.isfile('iam.json') and os.path.isfile('equivalency_list.json')
 
-def harvest(account_name,output):
+def harvest(output):
     if not check_if_init():
         print(Fore.YELLOW + 'Please initialize using "iamctl init"')
     else:
         output_directory = fix_me_a_directory(output)
-        harvest = Harvester(account_name, output_directory)
+        harvest = Harvester.init_without_profile(output_directory)
         #This will harvest all the iam roles from account-1 and write it to an extract file under output/ directory
         harvest.harvest_iam_roles_from_account()
 
@@ -62,8 +60,8 @@ def diff(profile_name_1, account_name_1, profile_name_2, account_name_2, output)
         print(Fore.YELLOW + 'Please initialize using "iamctl init"')
     else:
         output_directory = fix_me_a_directory(output)
-        harvest1 = Harvester(profile_name_1, output_directory)
-        harvest2 = Harvester(profile_name_2, output_directory)
+        harvest1 = Harvester.init_with_profile(profile_name_1, account_name_1, output_directory)
+        harvest2 = Harvester.init_with_profile(profile_name_2, account_name_2, output_directory)
 
         #This will harvest all the iam roles from account-1 and write it to an extract file under output/ directory
         harvest1.harvest_iam_roles_from_account()
@@ -134,8 +132,6 @@ def main():
 
 
     harvest_parser = subparsers.add_parser('harvest', help='Downloads the IAM Roles, policies expands glob patterns, matches resources to service actions and writes the output as csv to default <user_home>/aws-idt directory with a time based folder structure')
-    harvest_parser.add_argument('profile_name', help='AWS CLI Profile Name for Account-1')
-    harvest_parser.add_argument('account_name', help='Account-1 Tag [Without any Spaces]')
     harvest_parser.add_argument('--output',dest ='output', help='Output directory location where files will be written to')
 
     diff_parser = subparsers.add_parser('diff', help='Compares the two accounts supplied as input for differences in IAM roles, policies by first harvesting from both accounts and then applying the equivalency list string patterns to ignore known false positive triggers. Write several summary level and granular observations to files to the default <user_home>/aws-idt directory with a time based folder structure ')

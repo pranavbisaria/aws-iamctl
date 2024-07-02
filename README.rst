@@ -133,7 +133,7 @@ Figure 6: Harvest command help option
 
 The harvest command uses the following syntax:
 
-iamctl harvest <cli-profile> <account-tag>
+iamctl harvest <account-tag>
 
    When you run the harvest command, you should see output similar to
    the following screenshot.
